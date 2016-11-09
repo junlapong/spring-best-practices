@@ -1,5 +1,7 @@
 package practice.post_redirect_get;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -15,6 +17,8 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @RequestMapping("/session")
 @SessionAttributes(types = SessionExampleForm.class)
 public class SessionExampleController {
+
+	private static final Logger logger = LoggerFactory.getLogger(SessionExampleController.class);
 
 	public static final String FORM_MODEL_KEY = "form";
 	public static final String ERRORS_MODEL_KEY = BindingResult.MODEL_KEY_PREFIX + FORM_MODEL_KEY;
@@ -46,24 +50,33 @@ public class SessionExampleController {
 			@Validated SessionExampleForm form,
 			BindingResult result,
 			RedirectAttributes redirectAttributes) {
+
 		redirectAttributes.addFlashAttribute(FORM_MODEL_KEY, form);
 		redirectAttributes.addFlashAttribute(ERRORS_MODEL_KEY, result);
+
+		logger.debug("POST email: {}", form.getEmail());
+		logger.debug("POST pass : {}", form.getPassword());
 
 		if (result.hasFieldErrors("email")) {
 			return "redirect:/session?step1";
 		}
 
 		redirectAttributes.getFlashAttributes().clear();
+
 		return "redirect:/session?step2";
 	}
 
 	@RequestMapping(params = "step2")
 	public String step2(Model model) throws HttpSessionRequiredException {
+
 		SessionExampleForm form = (SessionExampleForm) model.asMap().get(FORM_MODEL_KEY);
+
 		if (form == null) {
 			throw new HttpSessionRequiredException("Expected session attribute '" + FORM_MODEL_KEY + "'");
 		}
+
 		model.addAttribute(FORM_MODEL_KEY, form);
+
 		return "session-step2";
 	}
 
@@ -72,8 +85,12 @@ public class SessionExampleController {
 			@Validated SessionExampleForm form,
 			BindingResult result,
 			RedirectAttributes redirectAttributes) {
+
 		redirectAttributes.addFlashAttribute(FORM_MODEL_KEY, form);
 		redirectAttributes.addFlashAttribute(ERRORS_MODEL_KEY, result);
+
+		logger.debug("POST email: {}", form.getEmail());
+		logger.debug("POST pass : {}", form.getPassword());
 
 		if (result.hasErrors()) {
 			return "redirect:/session?step2";
@@ -83,6 +100,17 @@ public class SessionExampleController {
 
 		redirectAttributes.getFlashAttributes().clear();
 		redirectAttributes.addFlashAttribute("message", "Success!");
-		return "redirect:/session";
+
+		return "redirect:/session?summary";
 	}
+
+	@RequestMapping(params = "summary")
+	public String success(Model model) {
+
+		SessionExampleForm form = (SessionExampleForm) model.asMap().get(FORM_MODEL_KEY);
+		logger.debug("step success for: {}", form.getEmail());	
+
+		return "summary";
+	}
+
 }

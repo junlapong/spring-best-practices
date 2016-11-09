@@ -3,6 +3,11 @@
 	<head>
 		<title>Post-Redirect-Get</title>
 	</head>
+	<style type="text/css">
+		.field-error .alert-error {
+			color: red;
+		}
+	</style>
 	<body>
 		<h1>Post-Redirect-Get</h1>
 		<h2>Step2</h2>
@@ -11,6 +16,7 @@
 			<div th:if="${#fields.hasErrors('password')}" class="alert alert-error">
 				<p th:each="error : ${#fields.errors('password')}" th:text="${error}">Validation error</p>
 			</div>
+			<label>E-Mail</label><p th:text="${form.email}" />
 			<label>Password</label>
 			<input type="text" th:field="*{password}" th:class="${#fields.hasErrors('password')} ? 'field-error'" />
 			<input type="submit" />
